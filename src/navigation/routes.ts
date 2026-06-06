@@ -1,0 +1,1 @@
+const HomeScreen = React.lazy(() => import('src/screens/HomeScreen'));
