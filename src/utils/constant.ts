@@ -8,10 +8,17 @@ export const ENDPOINTS = {
   LOGIN: '/auth/login',
   LOGOUT: '/auth/logout',
   REGISTER: '/auth/register',
+  GOOGLE_LOGIN: '/auth/google/login',
 
   // User
   GET_USER: '/user/me',
   UPDATE_USER: '/user/update',
 
   // Add more endpoints here as your app grows
+};
+
+export const MMKV_KEYS = {
+  AUTH_TOKEN: 'auth.token',
+  AUTH_USER: 'auth.user',
+  // Add more keys as needed
 };

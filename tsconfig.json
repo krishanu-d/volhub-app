@@ -2,12 +2,12 @@
   "extends": "@react-native/typescript-config",
   "compilerOptions": {
     "ignoreDeprecations": "6.0",
-    "types": ["jest"],
+    "types": ["jest", "node"],
     "baseUrl": ".",
     "paths": {
       "src/*": ["src/*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "src"],
   "exclude": ["**/node_modules", "**/Pods"]
 }

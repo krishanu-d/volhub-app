@@ -1,12 +1,10 @@
 import { View, Text } from 'react-native';
 import React from 'react';
 
-const HomeScreen = () => {
+export default function OnboardingScreen() {
   return (
     <View>
-      <Text>HomeScreen</Text>
+      <Text>OnboardingScreen</Text>
     </View>
   );
-};
-
-export default HomeScreen;
+}

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "100669711649",
+    "project_id": "volhub-498617",
+    "storage_bucket": "volhub-498617.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:100669711649:android:b209c57f3dcfd2c44b0a60",
+        "android_client_info": {
+          "package_name": "com.volhub"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "100669711649-m18aujd4cj8unr0bvbhrhscasvftrnd7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDnJWjjcTGVtDM1iBBo6Z2-g8Q2w7XAvwc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "100669711649-m18aujd4cj8unr0bvbhrhscasvftrnd7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
