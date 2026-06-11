@@ -4,7 +4,7 @@ import {
   GoogleSigninButton,
 } from '@react-native-google-signin/google-signin';
 import { postRequest } from './apiService';
-import { ENDPOINTS } from 'src/utils/constant';
+import { baseUrl, ENDPOINTS } from 'src/utils/constant';
 import { clearToken, setToken, storage } from 'src/utils/storage';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -47,7 +47,7 @@ export async function signInWithGoogle(): Promise<GoogleLoginResponse> {
     const response = await postRequest<{
       access_token: string;
       isNewUser: boolean;
-    }>('http://192.168.29.3:3000' + ENDPOINTS.GOOGLE_LOGIN, { idToken });
+    }>(baseUrl + ENDPOINTS.GOOGLE_LOGIN, { idToken });
     console.log('response', response);
 
     if (!response.success || !response.data?.access_token) {

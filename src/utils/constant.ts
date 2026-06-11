@@ -22,3 +22,22 @@ export const MMKV_KEYS = {
   AUTH_USER: 'auth.user',
   // Add more keys as needed
 };
+
+export const baseUrl = 'http://192.168.29.3:3000';
+
+export const OPPORTUNITY_CATEGORIES = {
+  ENVIRONMENT: 'environment',
+  EDUCATION: 'education',
+  HEALTH: 'health',
+  COMMUNITY: 'community',
+  ANIMAL_WELFARE: 'animal-welfare',
+  ART_CULTURE: 'art-culture',
+  TECHNOLOGY: 'technology',
+  SPORTS_RECREATION: 'sports-recreation',
+  HUMAN_RIGHTS: 'human-rights',
+  DISASTER_RELIEF: 'disaster-relieft',
+  ELDERLY_CARE: 'elderly-care',
+  CHILDREN_YOUTH: 'children-youth',
+  HOMELESS_SUPPORT: 'homeless-support',
+  FOOD_SECURITY: 'food-security',
+};

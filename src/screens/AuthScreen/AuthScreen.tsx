@@ -1,5 +1,5 @@
 import { View, Text, Dimensions } from 'react-native';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { typography } from 'src/utils/typography';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Images } from 'src/assets/images/images';
@@ -9,26 +9,39 @@ import { StackActions, useNavigation } from '@react-navigation/native';
 import AppButton from 'src/components/AppButton';
 import { RouteNames, Routes } from 'src/navigation/routes';
 import { signInWithGoogle } from 'src/services/googleAuth';
+import { getToken, getUser } from 'src/utils/storage';
 
 const { width, height } = Dimensions.get('window');
 
 const AuthScreen = () => {
   const navigation = useNavigation();
 
+  useEffect(() => {
+    const token = getToken();
+    if (token) {
+      const user = getUser();
+      if (user) {
+        navigation.dispatch(StackActions.replace(RouteNames.Home));
+      } else {
+        navigation.dispatch(StackActions.replace(RouteNames.Onboarding));
+      }
+    }
+  }, []);
+
   const getStarted = async () => {
     // navigation.navigate(Routes.Onboarding);
-    const { isNewUser, success, access_token, error } =
-      await signInWithGoogle();
+    const { isNewUser, success, error } = await signInWithGoogle();
 
     if (success) {
       // access_token is already stored in MMKV automatically
       //if new user, you can navigate to profile setup flow
       if (isNewUser) {
         navigation.dispatch(StackActions.replace(RouteNames.Onboarding));
+      } else {
+        navigation.dispatch(StackActions.replace(RouteNames.Home));
       }
-      navigation.dispatch(StackActions.replace(RouteNames.Home));
     } else {
-      // show error to user
+      // TODO show error to user
       console.error(error);
     }
   };
