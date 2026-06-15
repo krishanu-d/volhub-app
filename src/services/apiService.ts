@@ -24,7 +24,6 @@ export interface ApiResponse<T = unknown> {
   error: string | null;
   statusCode: number | null;
 }
-
 export interface ApiError {
   message: string;
   statusCode: number | null;
