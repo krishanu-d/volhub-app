@@ -1,5 +1,13 @@
 import messaging from '@react-native-firebase/messaging';
 import notifee, { AndroidImportance } from '@notifee/react-native';
+import { setFcmToken } from 'src/slice/deviceSlice';
+import { baseUrl, ENDPOINTS } from 'src/utils/constant';
+import {
+  getSyncedFcmToken,
+  setSyncedFcmToken,
+} from 'src/utils/storage';
+import { store } from 'src/utils/store';
+import { postRequest } from './apiService';
 
 // ─── Permission ────────────────────────────────────────────────────────────────
 export async function requestNotificationPermission(): Promise<boolean> {
@@ -25,6 +33,42 @@ export async function getFCMToken(): Promise<string | null> {
 }
 
 // ─── Create Notification Channel (Android requires this) ───────────────────────
+export async function syncFcmTokenIfNeeded(
+  token?: string | null,
+): Promise<boolean> {
+  const { isAuthenticated } = store.getState().auth;
+
+  if (!isAuthenticated) {
+    return false;
+  }
+
+  const fcmToken = token ?? (await getFCMToken());
+
+  if (!fcmToken) {
+    return false;
+  }
+
+  const lastSyncedToken = getSyncedFcmToken();
+
+  if (fcmToken === lastSyncedToken) {
+    store.dispatch(setFcmToken(fcmToken));
+    return true;
+  }
+
+  const response = await postRequest(baseUrl + ENDPOINTS.UPDATE_FCM_TOKEN, {
+    fcmToken,
+  });
+
+  if (!response.success) {
+    console.error('FCM token sync failed:', response.error);
+    return false;
+  }
+
+  setSyncedFcmToken(fcmToken);
+  store.dispatch(setFcmToken(fcmToken));
+  return true;
+}
+
 export async function createNotificationChannel() {
   await notifee.createChannel({
     id: 'volhub_default',

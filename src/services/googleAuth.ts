@@ -4,8 +4,10 @@ import {
   GoogleSigninButton,
 } from '@react-native-google-signin/google-signin';
 import { postRequest } from './apiService';
+import { logout, setAuthToken } from 'src/slice/authSlice';
+import { syncFcmTokenIfNeeded } from './notifiationService';
 import { baseUrl, ENDPOINTS } from 'src/utils/constant';
-import { clearToken, setToken, storage } from 'src/utils/storage';
+import { store } from 'src/utils/store';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -59,8 +61,9 @@ export async function signInWithGoogle(): Promise<GoogleLoginResponse> {
       };
     }
 
-    // Store your app's JWT in MMKV
-    setToken(response.data.access_token);
+    // Store your app's JWT in Redux and MMKV.
+    store.dispatch(setAuthToken(response.data.access_token));
+    void syncFcmTokenIfNeeded();
 
     return {
       success: true,
@@ -85,7 +88,7 @@ export async function signInWithGoogle(): Promise<GoogleLoginResponse> {
 export async function signOutFromGoogle(): Promise<void> {
   try {
     await GoogleSignin.signOut();
-    clearToken();
+    store.dispatch(logout());
   } catch (error) {
     console.error('Google Sign-Out error:', error);
   }

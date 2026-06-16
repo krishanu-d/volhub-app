@@ -5,9 +5,10 @@ import axios, {
   AxiosError,
   InternalAxiosRequestConfig,
 } from 'axios';
-import { TIMEOUT, TOKEN_KEY } from 'src/utils/constant';
+import { logout } from 'src/slice/authSlice';
+import { TIMEOUT } from 'src/utils/constant';
 import { API_ERRORS } from 'src/utils/errorStrings';
-import { storage } from 'src/utils/storage';
+import { store } from 'src/utils/store';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -42,11 +43,11 @@ const apiClient: AxiosInstance = axios.create({
 });
 
 // ─── Request Interceptor ─────────────────────────────────────────────────────
-// Reads token from MMKV (synchronous) and attaches it to every request.
+// Reads token from Redux, the runtime auth source of truth.
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-    const token = storage.getString(TOKEN_KEY);
+    const token = store.getState().auth.token;
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -63,8 +64,8 @@ apiClient.interceptors.response.use(
   (response: AxiosResponse) => response, // pass through success responses
   (error: AxiosError) => {
     if (error.response?.status === 401) {
-      // Session expired — clear stored token
-      storage.remove(TOKEN_KEY);
+      // Session expired — clear stored token in both redux and mmkv storage
+      store.dispatch(logout());
       // TODO: redirect to login screen via your navigation ref
       // e.g. navigationRef.current?.reset({ index: 0, routes: [{ name: 'Login' }] });
     }

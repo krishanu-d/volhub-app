@@ -9,8 +9,7 @@ import messaging from '@react-native-firebase/messaging';
 import {
   createNotificationChannel,
   displayForegroundNotification,
-  getFCMToken,
-  requestNotificationPermission,
+  syncFcmTokenIfNeeded,
 } from 'src/services/notifiationService';
 
 // ─── BACKGROUND handler — must be outside component, at file top level ─────────
@@ -27,23 +26,15 @@ export default function App() {
       webClientId: Config.GOOGLE_WEB_CLIENT_ID, // from Google Cloud Console
       scopes: ['email', 'profile'],
     });
+
+    let cleanup: (() => void) | undefined;
     async function setupNotifications() {
-      const permitted = await requestNotificationPermission();
-      if (!permitted) return;
-
       await createNotificationChannel();
-
-      const token = await getFCMToken();
-      if (token) {
-        // TODO Phase 3: send this token to NestJS → save in DB against the user
-        // api.post('/devices/token', { token })
-        console.log('FCM TOKEN', token);
-      }
+      void syncFcmTokenIfNeeded();
 
       // Listen for token refresh (Firebase rotates tokens sometimes)
-      const unsubscribeRefresh = messaging().onTokenRefresh(newToken => {
-        // TODO: send refreshed token to NestJS
-        console.log('Token refreshed:', newToken);
+      const unsubscribeRefresh = messaging().onTokenRefresh(async newToken => {
+        await syncFcmTokenIfNeeded(newToken);
       });
 
       // ─── FOREGROUND notification listener ──────────────────────────────────
@@ -61,7 +52,13 @@ export default function App() {
       };
     }
 
-    setupNotifications();
+    setupNotifications().then(unsubscribe => {
+      cleanup = unsubscribe;
+    });
+
+    return () => {
+      cleanup?.();
+    };
   }, []);
   return (
     <SafeAreaProvider>

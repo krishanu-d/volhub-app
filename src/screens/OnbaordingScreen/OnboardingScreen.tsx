@@ -18,6 +18,8 @@
  */
 
 import React, { useRef, useState, useCallback } from 'react';
+import ImagePicker from 'react-native-image-crop-picker';
+import { useDispatch } from 'react-redux';
 import {
   View,
   Text,
@@ -31,6 +33,11 @@ import {
   Dimensions,
 } from 'react-native';
 import tw from 'src/tw';
+import {
+  createNotificationChannel,
+  getFCMToken,
+  requestNotificationPermission,
+} from 'src/services/notifiationService';
 
 import { AboutSlide } from './components/AboutSlide';
 import { BasicInfoSlide } from './components/BasicInfoSlide';
@@ -44,6 +51,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 import { DotStepper } from './components/SlideHelpers';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { setFcmToken } from 'src/slice/deviceSlice';
 
 const INITIAL_FORM: OnboardingFormData = {
   role: null,
@@ -56,7 +64,7 @@ const INITIAL_FORM: OnboardingFormData = {
   longitude: '',
   picture: null,
   categories: [],
-  receivePushNotifications: true,
+  receivePushNotifications: false,
   receiveEmailNotifications: true,
   fcmToken: '',
 };
@@ -64,6 +72,7 @@ const INITIAL_FORM: OnboardingFormData = {
 const TOTAL_STEPS = 7;
 
 const OnboardingScreen: React.FC = () => {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState<OnboardingFormData>(INITIAL_FORM);
   const [currentStep, setCurrentStep] = useState(0);
   const [locating, setLocating] = useState(false);
@@ -86,10 +95,51 @@ const OnboardingScreen: React.FC = () => {
     [updateField],
   );
 
+  const fcmTokenLoadInFlightRef = useRef(false);
+
+  const handleLoadFcmToken = useCallback(async () => {
+    if (fcmTokenLoadInFlightRef.current) {
+      return;
+    }
+
+    fcmTokenLoadInFlightRef.current = true;
+
+    try {
+      await createNotificationChannel();
+      const token = await getFCMToken();
+
+      if (!token) {
+        return;
+      }
+
+      updateField('fcmToken', token);
+      dispatch(setFcmToken(token));
+    } finally {
+      fcmTokenLoadInFlightRef.current = false;
+    }
+  }, [dispatch, updateField]);
+
   const handleBoolChange = useCallback(
-    (field: keyof OnboardingFormData, value: boolean) =>
-      updateField(field, value as any),
-    [updateField],
+    async (field: keyof OnboardingFormData, value: boolean) => {
+      if (field === 'receivePushNotifications') {
+        if (value) {
+          const permitted = await requestNotificationPermission();
+          if (!permitted) {
+            Alert.alert(
+              'Notification permission denied',
+              'Enable notifications in Settings to receive updates.',
+            );
+            updateField('receivePushNotifications', false);
+            return;
+          }
+
+          await handleLoadFcmToken();
+        }
+      }
+
+      updateField(field, value as any);
+    },
+    [handleLoadFcmToken, updateField],
   );
 
   const handleSelectRole = useCallback((role: 'ngo' | 'volunteer') => {
@@ -105,18 +155,31 @@ const OnboardingScreen: React.FC = () => {
     }));
   }, []);
 
-  const handlePickImage = useCallback(() => {
-    Alert.alert(
-      'Pick a photo',
-      'Integrate your image picker here (e.g. react-native-image-picker)',
-      [
-        {
-          text: 'Use demo image',
-          onPress: () => updateField('picture', 'https://i.pravatar.cc/300'),
-        },
-        { text: 'Cancel', style: 'cancel' },
-      ],
-    );
+  const handlePickImage = useCallback(async () => {
+    try {
+      const image = await ImagePicker.openPicker({
+        mediaType: 'photo',
+        cropping: true,
+        width: 512,
+        height: 512,
+        cropperCircleOverlay: true,
+        compressImageQuality: 0.85,
+        includeExif: false,
+      });
+
+      updateField('picture', image.path);
+    } catch (error) {
+      const pickerError = error as { code?: string; message?: string };
+
+      if (pickerError.code === 'E_PICKER_CANCELLED') {
+        return;
+      }
+
+      Alert.alert(
+        'Unable to pick photo',
+        pickerError.message ?? 'Please try selecting a different image.',
+      );
+    }
   }, [updateField]);
 
   const handleDetectLocation = useCallback(async () => {

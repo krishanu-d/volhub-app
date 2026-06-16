@@ -69,7 +69,7 @@ export const NotificationsSlide: React.FC<Props> = ({
     <Text
       style={tw`font-inter-regular text-[12px] text-muted-light text-center mt-4`}
     >
-      You can change these anytime in Settings → Notifications.
+      You can change these anytime in Settings - Notifications.
     </Text>
   </View>
 );

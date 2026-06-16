@@ -29,3 +29,15 @@ export const clearToken = () => {
 export const clearUser = () => {
   storage.remove(MMKV_KEYS.AUTH_USER);
 };
+
+export const setSyncedFcmToken = (token: string) => {
+  storage.set(MMKV_KEYS.FCM_SYNCED_TOKEN, token);
+};
+
+export const getSyncedFcmToken = () => {
+  return storage.getString(MMKV_KEYS.FCM_SYNCED_TOKEN);
+};
+
+export const clearSyncedFcmToken = () => {
+  storage.remove(MMKV_KEYS.FCM_SYNCED_TOKEN);
+};

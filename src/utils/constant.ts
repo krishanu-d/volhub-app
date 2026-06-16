@@ -1,7 +1,5 @@
 export const TIMEOUT = 15000; // 15 seconds
 
-export const TOKEN_KEY = 'auth_token'; // MMKV key for storing the token
-
 // Add all your endpoint strings here — never hardcode in screens
 export const ENDPOINTS = {
   // Auth
@@ -13,6 +11,7 @@ export const ENDPOINTS = {
   // User
   GET_USER: '/user/me',
   UPDATE_USER: '/user/update',
+  UPDATE_FCM_TOKEN: '/user/fcm-token',
 
   // Add more endpoints here as your app grows
 };
@@ -20,6 +19,7 @@ export const ENDPOINTS = {
 export const MMKV_KEYS = {
   AUTH_TOKEN: 'auth.token',
   AUTH_USER: 'auth.user',
+  FCM_SYNCED_TOKEN: 'fcm.syncedToken',
   // Add more keys as needed
 };
 
@@ -35,7 +35,7 @@ export const OPPORTUNITY_CATEGORIES = {
   TECHNOLOGY: 'technology',
   SPORTS_RECREATION: 'sports-recreation',
   HUMAN_RIGHTS: 'human-rights',
-  DISASTER_RELIEF: 'disaster-relieft',
+  DISASTER_RELIEF: 'disaster-relief',
   ELDERLY_CARE: 'elderly-care',
   CHILDREN_YOUTH: 'children-youth',
   HOMELESS_SUPPORT: 'homeless-support',
