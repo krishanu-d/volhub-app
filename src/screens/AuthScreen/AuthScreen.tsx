@@ -15,12 +15,15 @@ const { width, height } = Dimensions.get('window');
 
 const AuthScreen = () => {
   const navigation = useNavigation();
+  const [buttonState, setButtonState] = React.useState<
+    'idle' | 'loading' | 'success' | 'error'
+  >('idle');
 
   useEffect(() => {
     const token = getToken();
     if (token) {
       const user = getUser();
-      if (user) {
+      if (user?.isProfileComplete) {
         navigation.dispatch(StackActions.replace(RouteNames.Home));
       } else {
         navigation.dispatch(StackActions.replace(RouteNames.Onboarding));
@@ -30,24 +33,26 @@ const AuthScreen = () => {
 
   const getStarted = async () => {
     // navigation.navigate(Routes.Onboarding);
-    const { isNewUser, success, error } = await signInWithGoogle();
+    setButtonState('loading');
+    const { isNewUser, success, error, user } = await signInWithGoogle();
 
     if (success) {
-      // access_token is already stored in MMKV automatically
-      //if new user, you can navigate to profile setup flow
-      if (isNewUser) {
+      if (isNewUser || !user?.isProfileComplete) {
+        setButtonState('success');
         navigation.dispatch(StackActions.replace(RouteNames.Onboarding));
       } else {
+        setButtonState('success');
         navigation.dispatch(StackActions.replace(RouteNames.Home));
       }
     } else {
       // TODO show error to user
       console.error(error);
+      setButtonState('error');
     }
   };
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
-      <AppImages
+      {/* <AppImages
         source={Images.BaseScreen}
         resizeMode="contain"
         style={{
@@ -58,7 +63,7 @@ const AuthScreen = () => {
           width,
           height,
         }}
-      />
+      /> */}
       <View style={tw`flex-1 justify-center items-center z-10 `}>
         <View style={tw`justify-center items-center flex-2`}>
           <Images.LogoWhiteOutline
@@ -67,9 +72,7 @@ const AuthScreen = () => {
             preserveAspectRatio="xMidYMid meet"
           />
         </View>
-        <View
-          style={tw`flex-1.2 bg-surface w-full p-4 rounded-t-2xl justify-between`}
-        >
+        <View style={tw`flex-1.2 bg-surface w-full p-4 rounded-t-2xl justify-between`}>
           <View>
             <Text
               style={[typography.h2, tw`text-dark text-left `]}
@@ -80,7 +83,11 @@ const AuthScreen = () => {
           </View>
 
           <View style={tw``}>
-            <AppButton label="Continue with Google" onPress={getStarted} />
+            <AppButton
+              buttonState={buttonState}
+              label="Continue with Google"
+              onPress={getStarted}
+            />
           </View>
         </View>
       </View>

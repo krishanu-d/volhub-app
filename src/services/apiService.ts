@@ -6,7 +6,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from 'axios';
 import { logout } from 'src/slice/authSlice';
-import { TIMEOUT } from 'src/utils/constant';
+import { baseUrl, TIMEOUT } from 'src/utils/constant';
 import { API_ERRORS } from 'src/utils/errorStrings';
 import { store } from 'src/utils/store';
 
@@ -34,7 +34,7 @@ export interface ApiError {
 // ─── Axios Instance ──────────────────────────────────────────────────────────
 
 const apiClient: AxiosInstance = axios.create({
-  baseURL: '',
+  baseURL: baseUrl,
   timeout: TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
@@ -156,7 +156,6 @@ export async function postRequest<T>(
   config?: AxiosRequestConfig,
 ): Promise<ApiResponse<T>> {
   try {
-    console.log('post', url, data, config);
     const response = await apiClient.post<T>(url, data, config);
     return buildSuccess(response);
   } catch (error) {

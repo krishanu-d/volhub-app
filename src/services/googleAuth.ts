@@ -1,90 +1,88 @@
 import {
   GoogleSignin,
-  statusCodes,
   GoogleSigninButton,
+  statusCodes,
 } from '@react-native-google-signin/google-signin';
-import { postRequest } from './apiService';
 import { logout, setAuthToken } from 'src/slice/authSlice';
-import { syncFcmTokenIfNeeded } from './notifiationService';
-import { baseUrl, ENDPOINTS } from 'src/utils/constant';
+import { ENDPOINTS } from 'src/utils/constant';
+import { setUser } from 'src/utils/storage';
 import { store } from 'src/utils/store';
+import { postRequest } from './apiService';
+import { syncFcmTokenIfNeeded } from './notifiationService';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+export interface AuthUser {
+  id: number;
+  email: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  picture?: string | null;
+  role?: 'ngo' | 'volunteer' | 'admin' | null;
+  isProfileComplete?: boolean;
+}
 
 export interface GoogleLoginResponse {
   success: boolean;
-  access_token: string | null; // your app's JWT from backend
+  accessToken: string | null;
   error: string | null;
-  isNewUser: boolean; // optional, if your backend provides this info
+  isNewUser: boolean;
+  user: AuthUser | null;
 }
 
-// ─── Sign In ─────────────────────────────────────────────────────────────────
-/**
- * Triggers the Google sign-in flow.
- * On success, sends idToken to your backend and stores the returned JWT.
- *
- * Returns { success, access_token, error, isNewUser }
- */
 export async function signInWithGoogle(): Promise<GoogleLoginResponse> {
   try {
-    // Check Play Services availability (Android)
     await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
 
-    // Trigger sign-in sheet
     const userInfo = await GoogleSignin.signIn();
-    console.log('userInfo', userInfo);
-
     const idToken = userInfo?.data?.idToken;
-    console.log('idtoke', idToken);
+
     if (!idToken) {
       return {
         success: false,
-        access_token: null,
+        accessToken: null,
         isNewUser: false,
+        user: null,
         error: 'Failed to retrieve token from Google. Please try again.',
       };
     }
 
-    // Send idToken to your backend
     const response = await postRequest<{
-      access_token: string;
+      accessToken: string;
       isNewUser: boolean;
-    }>(baseUrl + ENDPOINTS.GOOGLE_LOGIN, { idToken });
-    console.log('response', response);
+      user: AuthUser;
+    }>(ENDPOINTS.GOOGLE_LOGIN, { idToken });
 
-    if (!response.success || !response.data?.access_token) {
+    if (!response.success || !response.data?.accessToken) {
       return {
         success: false,
-        access_token: null,
+        accessToken: null,
         isNewUser: false,
+        user: null,
         error: response.error ?? 'Login failed. Please try again.',
       };
     }
 
-    // Store your app's JWT in Redux and MMKV.
-    store.dispatch(setAuthToken(response.data.access_token));
+    store.dispatch(setAuthToken(response.data.accessToken));
+    setUser(response.data.user);
     void syncFcmTokenIfNeeded();
 
     return {
       success: true,
-      access_token: response.data.access_token,
-      isNewUser: response.data.isNewUser ?? false, // if your backend provides this info
+      accessToken: response.data.accessToken,
+      isNewUser: response.data.isNewUser ?? false,
+      user: response.data.user,
       error: null,
     };
   } catch (error: unknown) {
     return {
       success: false,
-      access_token: null,
+      accessToken: null,
       isNewUser: false,
+      user: null,
       error: getGoogleSignInError(error),
     };
   }
 }
 
-// ─── Sign Out ─────────────────────────────────────────────────────────────────
-/**
- * Signs the user out from Google and clears the stored JWT.
- */
 export async function signOutFromGoogle(): Promise<void> {
   try {
     await GoogleSignin.signOut();
@@ -93,8 +91,6 @@ export async function signOutFromGoogle(): Promise<void> {
     console.error('Google Sign-Out error:', error);
   }
 }
-
-// ─── Error Handler ────────────────────────────────────────────────────────────
 
 function getGoogleSignInError(error: unknown): string {
   if (typeof error === 'object' && error !== null && 'code' in error) {

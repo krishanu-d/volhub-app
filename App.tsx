@@ -21,7 +21,6 @@ messaging().setBackgroundMessageHandler(async remoteMessage => {
 
 export default function App() {
   useEffect(() => {
-    console.log('google client id', Config.GOOGLE_WEB_CLIENT_ID);
     GoogleSignin.configure({
       webClientId: Config.GOOGLE_WEB_CLIENT_ID, // from Google Cloud Console
       scopes: ['email', 'profile'],

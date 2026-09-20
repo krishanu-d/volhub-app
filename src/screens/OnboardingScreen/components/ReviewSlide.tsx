@@ -12,6 +12,11 @@ interface Props {
 }
 
 export const ReviewSlide: React.FC<Props> = ({ data, onGoTo }) => {
+  const displayName =
+    data.role === 'ngo'
+      ? data.firstName
+      : [data.firstName, data.lastName].filter(Boolean).join(' ');
+
   const rows = [
     {
       label: 'Role',
@@ -20,11 +25,11 @@ export const ReviewSlide: React.FC<Props> = ({ data, onGoTo }) => {
     },
     {
       label: data.role === 'ngo' ? 'Org name' : 'Name',
-      value: data.name || '—',
+      value: displayName || '—',
       step: 1,
     },
     { label: 'Email', value: data.email || '—', step: 1 },
-    { label: 'Contact', value: data.contactInfo || '—', step: 1 },
+    { label: 'Contact', value: data.contactNumber || '—', step: 1 },
     {
       label: data.role === 'ngo' ? 'Mission' : 'Bio',
       value: data.about

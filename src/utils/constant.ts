@@ -1,6 +1,7 @@
 export const TIMEOUT = 15000; // 15 seconds
+export const baseUrl = 'http://192.168.1.9:3000';
 
-// Add all your endpoint strings here — never hardcode in screens
+// Add all endpoint paths here. The base URL belongs in apiClient.
 export const ENDPOINTS = {
   // Auth
   LOGIN: '/auth/login',
@@ -9,9 +10,10 @@ export const ENDPOINTS = {
   GOOGLE_LOGIN: '/auth/google/login',
 
   // User
-  GET_USER: '/user/me',
-  UPDATE_USER: '/user/update',
-  UPDATE_FCM_TOKEN: '/user/fcm-token',
+  GET_USER: '/users/me',
+  UPDATE_USER: '/users/me',
+  COMPLETE_PROFILE: '/users/me/complete-profile',
+  UPDATE_FCM_TOKEN: '/users/me/fcm-token',
 
   // Add more endpoints here as your app grows
 };
@@ -22,8 +24,6 @@ export const MMKV_KEYS = {
   FCM_SYNCED_TOKEN: 'fcm.syncedToken',
   // Add more keys as needed
 };
-
-export const baseUrl = 'http://192.168.29.3:3000';
 
 export const OPPORTUNITY_CATEGORIES = {
   ENVIRONMENT: 'environment',

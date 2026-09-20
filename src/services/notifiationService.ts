@@ -1,13 +1,13 @@
 import messaging from '@react-native-firebase/messaging';
 import notifee, { AndroidImportance } from '@notifee/react-native';
 import { setFcmToken } from 'src/slice/deviceSlice';
-import { baseUrl, ENDPOINTS } from 'src/utils/constant';
+import { ENDPOINTS } from 'src/utils/constant';
 import {
   getSyncedFcmToken,
   setSyncedFcmToken,
 } from 'src/utils/storage';
 import { store } from 'src/utils/store';
-import { postRequest } from './apiService';
+import { patchRequest } from './apiService';
 
 // ─── Permission ────────────────────────────────────────────────────────────────
 export async function requestNotificationPermission(): Promise<boolean> {
@@ -24,7 +24,6 @@ export async function requestNotificationPermission(): Promise<boolean> {
 export async function getFCMToken(): Promise<string | null> {
   try {
     const token = await messaging().getToken();
-    console.log('FCM Token:', token);
     return token;
   } catch (e) {
     console.error('FCM token error:', e);
@@ -55,7 +54,7 @@ export async function syncFcmTokenIfNeeded(
     return true;
   }
 
-  const response = await postRequest(baseUrl + ENDPOINTS.UPDATE_FCM_TOKEN, {
+  const response = await patchRequest(ENDPOINTS.UPDATE_FCM_TOKEN, {
     fcmToken,
   });
 

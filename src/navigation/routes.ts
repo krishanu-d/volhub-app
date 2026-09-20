@@ -2,7 +2,7 @@ import React from 'react';
 
 const AuthScreen = React.lazy(() => import('src/screens/AuthScreen'));
 const OnboardingScreen = React.lazy(
-  () => import('src/screens/OnbaordingScreen'),
+  () => import('src/screens/OnboardingScreen'),
 );
 const HomeScreen = React.lazy(() => import('src/screens/HomeScreen'));
 

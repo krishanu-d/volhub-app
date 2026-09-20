@@ -15,12 +15,8 @@ interface Props {
 export const AboutSlide: React.FC<Props> = ({ role, about, onChange }) => {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   useEffect(() => {
-    const show = Keyboard.addListener('keyboardDidShow', () =>
-      setKeyboardVisible(true),
-    );
-    const hide = Keyboard.addListener('keyboardDidHide', () =>
-      setKeyboardVisible(false),
-    );
+    const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
     return () => {
       show.remove();
       hide.remove();
@@ -51,12 +47,12 @@ export const AboutSlide: React.FC<Props> = ({ role, about, onChange }) => {
         }
         placeholderTextColor="#9CA3AF"
         multiline
+        editable
         autoCapitalize="sentences"
-        style={tw`bg-card border border-border rounded-[10px] px-[14px] pt-3 pb-3 font-inter-regular text-[15px] text-dark min-h-[160px]`}
+        numberOfLines={4}
+        // style={tw`bg-card border border-border rounded-[10px] px-[14px] font-inter-regular text-[15px] text-dark min-h-[160px]`}
       />
-      <Text
-        style={tw`font-inter-regular text-[12px] text-muted-light text-right mt-1`}
-      >
+      <Text style={tw`font-inter-regular text-[12px] text-muted-light text-right mt-1`}>
         {about.length} / 500
       </Text>
     </View>

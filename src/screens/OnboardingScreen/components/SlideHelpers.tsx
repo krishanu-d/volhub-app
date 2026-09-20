@@ -149,3 +149,4 @@ export const DetectLocationButton: React.FC<LoadingButtonProps> = ({
     )}
   </TouchableOpacity>
 );
+
